@@ -35,3 +35,6 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Build API container
+        run: docker build --file infra/docker/api.Dockerfile --tag el-rager-api:ci .

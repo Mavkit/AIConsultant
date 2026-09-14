@@ -53,6 +53,14 @@ The development API listens on `http://localhost:3001` by default.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow and [the delivery roadmap](docs/ROADMAP.md) for milestone scope.
 
+## Docker
+
+```bash
+docker compose up --build
+```
+
+The API is then available at `http://localhost:3001`. See the [Docker operations guide](docs/operations/docker.md) for lifecycle, configuration, verification, and troubleshooting.
+
 ## Source context
 
 The initial scope is aligned with Value Retail Consulting's published expertise in strategy, enterprise architecture, solution architecture, procurement, program and IT leadership, vendor management, business development, and change leadership:
