@@ -1,0 +1,37 @@
+name: Product or platform work
+description: Propose a customer-facing capability or engineering improvement.
+title: "[Feature] "
+labels: []
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: What customer or operational result should change?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and evidence
+      description: Include customer evidence, sources, constraints, and known assumptions.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and non-goals
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: "- [ ] Observable result"
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks and review needs
+      description: Consider tenant, privacy, security, AI quality, cost, accessibility, and human review.

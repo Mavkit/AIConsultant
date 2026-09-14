@@ -1,0 +1,40 @@
+name: Architecture decision
+description: Record a material technical decision that requires an ADR.
+title: "[Architecture] "
+labels: []
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What decision is needed and why now?
+    validations:
+      required: true
+  - type: textarea
+    id: drivers
+    attributes:
+      label: Decision drivers and constraints
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Options to evaluate
+    validations:
+      required: true
+  - type: textarea
+    id: consequences
+    attributes:
+      label: Consequences and revisit triggers
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Impact areas
+      options:
+        - label: System or container boundaries
+        - label: Tenant, security, or privacy boundaries
+        - label: API, integration, or data contracts
+        - label: AI provider, quality, latency, or cost
+        - label: Docker, deployment, or operations

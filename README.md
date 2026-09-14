@@ -49,6 +49,9 @@ The development API listens on `http://localhost:3001` by default.
 | `GET /api/v1/consultant` | EL Råger identity, disclosure, languages, and expertise |
 | `GET /api/v1/workflows` | Approved consulting workflow catalog |
 | `GET /api/v1/workflows/:workflowId` | A single workflow contract |
+| `GET /documentation` | Interactive OpenAPI documentation |
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow and [the delivery roadmap](docs/ROADMAP.md) for milestone scope.
 
 ## Source context
 

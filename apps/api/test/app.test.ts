@@ -9,7 +9,7 @@ describe("EL Råger API", () => {
   let app: FastifyInstance;
 
   before(async () => {
-    app = buildApp();
+    app = await buildApp();
     await app.ready();
   });
 
@@ -51,5 +51,18 @@ describe("EL Råger API", () => {
 
     assert.equal(response.statusCode, 404);
     assert.equal(response.json().title, "Workflow not found");
+  });
+
+  it("publishes an OpenAPI contract for every public API route", async () => {
+    const response = await app.inject({ method: "GET", url: "/documentation/json" });
+    const body = response.json();
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(body.info.title, "EL Råger API");
+    assert.ok(body.paths["/health"]);
+    assert.ok(body.paths["/ready"]);
+    assert.ok(body.paths["/api/v1/consultant"]);
+    assert.ok(body.paths["/api/v1/workflows"]);
+    assert.ok(body.paths["/api/v1/workflows/{workflowId}"]);
   });
 });
