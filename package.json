@@ -1,0 +1,19 @@
+{
+  "name": "el-rager",
+  "version": "0.1.0",
+  "private": true,
+  "description": "EL Råger — Value Retail Consulting's digital retail architecture consultant",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "check": "npm run check --workspaces --if-present",
+    "dev:api": "npm run dev --workspace @el-rager/api",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

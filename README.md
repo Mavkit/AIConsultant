@@ -27,7 +27,28 @@ The product is intended to give customers affordable, structured access to archi
 
 ## Repository status
 
-The repository currently contains the Milestone 1 product and architecture baseline. Application implementation starts after the corresponding decisions are reviewed.
+The repository contains the Milestone 1 product and architecture baseline plus an executable API foundation. The API publishes EL Råger's transparent consultant profile, health/readiness status, and the approved consulting workflow catalog.
+
+## Local development
+
+Requires Node.js 24 or later.
+
+```bash
+npm install
+npm run check
+npm test
+npm run dev:api
+```
+
+The development API listens on `http://localhost:3001` by default.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /health` | Process health |
+| `GET /ready` | Dependency readiness |
+| `GET /api/v1/consultant` | EL Råger identity, disclosure, languages, and expertise |
+| `GET /api/v1/workflows` | Approved consulting workflow catalog |
+| `GET /api/v1/workflows/:workflowId` | A single workflow contract |
 
 ## Source context
 

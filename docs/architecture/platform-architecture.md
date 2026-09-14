@@ -52,12 +52,12 @@ C4Container
 
     Container_Boundary(system, "EL Råger") {
         Container(web, "Web application", "Next.js / TypeScript", "Responsive consultation and workspace UI")
-        Container(api, "Application API", "FastAPI / Python", "Tenant boundary, workflows, policy, artifacts, entitlements")
-        Container(worker, "Background worker", "Python", "Ingestion, retrieval indexing, and artifact jobs")
+        Container(api, "Application API", "Fastify / TypeScript", "Tenant boundary, workflows, policy, artifacts, entitlements")
+        Container(worker, "Background worker", "Node.js / TypeScript", "Ingestion, retrieval indexing, and artifact jobs")
         ContainerDb(db, "Operational database", "PostgreSQL + pgvector", "Tenant data, conversations, decisions, metadata, embeddings")
         ContainerDb(objects, "Object storage", "S3-compatible", "Encrypted source documents and generated artifacts")
         Container(queue, "Job and cache service", "Redis-compatible", "Short-lived cache, rate limits, and background jobs")
-        Container(gateway, "Model gateway", "Python interface", "Provider abstraction, budgets, policy, and telemetry")
+        Container(gateway, "Model gateway", "TypeScript interface", "Provider abstraction, budgets, policy, and telemetry")
     }
 
     Rel(user, web, "Uses", "HTTPS")
@@ -81,10 +81,10 @@ C4Container
 ```text
 apps/
   web/                 Next.js customer and consultant experience
-  api/                 FastAPI application and streaming endpoints
+  api/                 Fastify application and streaming endpoints
   worker/              Background ingestion and artifact jobs
 packages/
-  contracts/           Versioned API schemas and generated clients
+  contracts/           Versioned schemas and shared API types
   design-system/       Value Retail-aligned UI primitives
   evaluation/          Scenario datasets, rubrics, and runners
 docs/
