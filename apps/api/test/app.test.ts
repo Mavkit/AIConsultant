@@ -24,6 +24,31 @@ describe("EL Råger API", () => {
     assert.deepEqual(response.json(), { status: "ok" });
   });
 
+  it("reports an unconfigured database without blocking local readiness", async () => {
+    const response = await app.inject({ method: "GET", url: "/ready" });
+
+    assert.equal(response.statusCode, 200);
+    assert.deepEqual(response.json(), {
+      status: "ready",
+      checks: { api: "ok", database: "not-configured" },
+    });
+  });
+
+  it("blocks readiness when a required dependency is unavailable", async () => {
+    const unavailableApp = await buildApp({
+      readinessProbes: [{ name: "database", check: async () => "unavailable" }],
+    });
+
+    const response = await unavailableApp.inject({ method: "GET", url: "/ready" });
+    await unavailableApp.close();
+
+    assert.equal(response.statusCode, 503);
+    assert.deepEqual(response.json(), {
+      status: "not-ready",
+      checks: { api: "ok", database: "unavailable" },
+    });
+  });
+
   it("identifies EL Råger transparently as AI", async () => {
     const response = await app.inject({ method: "GET", url: "/api/v1/consultant" });
     const body = response.json();

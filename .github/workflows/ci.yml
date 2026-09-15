@@ -36,8 +36,23 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Validate Compose configuration
+        run: docker compose config --quiet
+
+      - name: Verify repeatable database migration and seed
+        run: |
+          docker compose up --detach --wait db
+          docker compose run --rm migrate
+          docker compose run --rm migrate
+          test "$(docker compose exec -T db psql -U el_rager -d el_rager -Atqc "select count(*) from schema_migrations where version = '001_foundation';")" = "1"
+          test "$(docker compose exec -T db psql -U el_rager -d el_rager -Atqc "select count(*) from workspaces where id = '00000000-0000-4000-8000-000000000101';")" = "1"
+
       - name: Build API container
         run: docker build --file infra/docker/api.Dockerfile --tag el-rager-api:ci .
 
       - name: Build web container
         run: docker build --file infra/docker/web.Dockerfile --tag el-rager-web:ci .
+
+      - name: Clean up Compose services
+        if: always()
+        run: docker compose down --volumes

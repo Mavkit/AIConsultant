@@ -4,13 +4,23 @@ import Fastify, { type FastifyInstance } from "fastify";
 
 import { consultantProfile } from "./domain/consultant-profile.js";
 import { consultingWorkflows, getWorkflow } from "./domain/workflows.js";
+import {
+  createDatabaseReadinessProbe,
+  type ReadinessProbe,
+} from "./infrastructure/database-readiness.js";
 
 export interface BuildAppOptions {
   logger?: boolean;
+  readinessProbes?: ReadinessProbe[];
 }
 
 export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyInstance> {
   const app = Fastify({ logger: options.logger ?? false });
+  const readinessProbes = options.readinessProbes ?? [createDatabaseReadinessProbe()];
+
+  app.addHook("onClose", async () => {
+    await Promise.all(readinessProbes.map((probe) => probe.close?.()));
+  });
 
   await app.register(swagger, {
     openapi: {
@@ -64,7 +74,19 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
             additionalProperties: false,
             required: ["status", "checks"],
             properties: {
-              status: { type: "string", const: "ready" },
+              status: { type: "string", enum: ["ready", "not-ready"] },
+              checks: {
+                type: "object",
+                additionalProperties: { type: "string" },
+              },
+            },
+          },
+          503: {
+            type: "object",
+            additionalProperties: false,
+            required: ["status", "checks"],
+            properties: {
+              status: { type: "string", enum: ["ready", "not-ready"] },
               checks: {
                 type: "object",
                 additionalProperties: { type: "string" },
@@ -75,7 +97,15 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyIn
       },
     },
     async (_request, reply) => {
-      return reply.code(200).send({ status: "ready", checks: { api: "ok" } });
+      const results = await Promise.all(
+        readinessProbes.map(async (probe) => [probe.name, await probe.check()] as const),
+      );
+      const checks = Object.fromEntries([["api", "ok"], ...results]);
+      const ready = results.every(([, state]) => state !== "unavailable");
+
+      return reply
+        .code(ready ? 200 : 503)
+        .send({ status: ready ? "ready" : "not-ready", checks });
     },
   );
 

@@ -59,7 +59,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow and [the del
 docker compose up --build
 ```
 
-The customer entry experience is then available at `http://localhost:3000`, with the API at `http://localhost:3001`. The web application proxies browser API calls through its own origin and keeps the internal API address server-side. See the [Docker operations guide](docs/operations/docker.md) for lifecycle, configuration, verification, and troubleshooting.
+The customer entry experience is then available at `http://localhost:3000`, with the API at `http://localhost:3001`. Compose provisions PostgreSQL, applies versioned migrations and repeatable non-customer pilot seed data, and starts the applications only after dependency readiness. The web application proxies browser API calls through its own origin and keeps the internal API address server-side. See the [Docker operations guide](docs/operations/docker.md) for lifecycle, configuration, verification, and troubleshooting.
 
 ## Source context
 

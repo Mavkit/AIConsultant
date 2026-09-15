@@ -5,13 +5,13 @@ Related issue: [#7 Containerize the complete application with Docker](https://gi
 
 ## Purpose
 
-The Docker baseline makes the EL Råger web application and API reproducible across development, CI, and later deployment environments. Both runtime images are multi-stage, run as the unprivileged `node` user, contain production dependencies only, and expose explicit health behavior.
+The Docker baseline makes the EL Råger web application, API, and PostgreSQL persistence reproducible across development, CI, and later deployment environments. Application runtime images are multi-stage, run as the unprivileged `node` user, contain production dependencies only, and expose explicit health behavior.
 
 ## Prerequisites
 
 - Docker Engine or Docker Desktop with Compose v2.
 - Network access to the configured container registry and npm registry for the first build.
-- Ports 3000 and 3001 available, or set `EL_RAGER_WEB_PORT` and `EL_RAGER_API_PORT` to other host ports.
+- Ports 3000, 3001, and 5432 available, or set the corresponding `EL_RAGER_*_PORT` variables to other host ports.
 
 ## Build and run
 
@@ -75,7 +75,20 @@ Remove the Compose containers and network:
 docker compose down
 ```
 
-The current API baseline is stateless and defines no volumes. Later data services must use explicit named volumes or managed services with documented backup and restore behavior.
+PostgreSQL data persists in the `postgres-data` named volume. `docker compose down` keeps this volume; `docker compose down --volumes` permanently deletes local database data and should be used only when an intentional clean reset is required.
+
+## Database initialization
+
+Compose waits for PostgreSQL health, runs the `migrate` one-shot service, applies the versioned foundation schema and repeatable local pilot seed, then starts the API. The API `/ready` response reports `database: ok` only after a real query succeeds; loss of database connectivity changes readiness to HTTP 503 without changing process liveness.
+
+Inspect migration output and applied versions:
+
+```bash
+docker compose logs migrate
+docker compose exec db psql -U el_rager -d el_rager -c "select * from schema_migrations order by applied_at;"
+```
+
+See the [operational data model](../architecture/data-model.md) for tenant integrity and migration rules.
 
 ## Runtime controls
 
@@ -102,6 +115,8 @@ The current API baseline is stateless and defines no volumes. Later data service
 | `API_INTERNAL_URL` | `http://api:3001` | Server-only web-to-API address |
 | `EL_RAGER_WEB_PORT` | `3000` | Compose web host-side published port |
 | `EL_RAGER_API_PORT` | `3001` | Compose host-side published port |
+| `EL_RAGER_DB_PORT` | `5432` | Compose PostgreSQL host-side published port |
+| `EL_RAGER_DB_PASSWORD` | Local-only fallback | Local PostgreSQL password; inject as a secret outside development |
 
 Configuration is environment-based. Secret values must come from the deployment platform's secret store or a Compose secret mechanism; they must never be committed or baked into an image.
 
@@ -115,13 +130,14 @@ CI runs type checks, tests, and application builds before building both the web 
 
 Set `EL_RAGER_API_PORT` to an unused host port. The internal container port remains 3001.
 
-### Container is unhealthy
+### Container is unhealthy or not ready
 
 Inspect status and application logs:
 
 ```bash
 docker compose ps
 docker compose logs api
+docker compose logs db migrate
 ```
 
 Confirm that web listens on `0.0.0.0:3000`, API listens on `0.0.0.0:3001`, and their health endpoints return HTTP 200 inside the containers. Web readiness returns HTTP 503 when the API is unavailable by design.
@@ -145,4 +161,5 @@ This baseline intentionally does not select a production orchestrator. Before pi
 - Registry provenance, vulnerability scanning, and image signing.
 - Log/trace export without sensitive content.
 - Deployment rollout and rollback.
-- Database, object storage, queue, migrations, backup, and restore.
+- Object storage and queue service selection, health checks, and recovery behavior.
+- Managed database selection, encrypted backups, restore testing, connection pooling, and credential rotation.
