@@ -1,6 +1,6 @@
 # ADR 0004: Dedicated web application entry
 
-- Status: Proposed
+- Status: Accepted for MVP
 - Date: 2026-09-14
 - Decision owner: Product and web architecture
 
@@ -17,6 +17,10 @@ Host EL Råger as a dedicated web application, initially on a Value Retail-contr
 - Product deployment and security remain independent of the marketing CMS.
 - Users may experience a domain transition, which must preserve brand continuity and trust.
 - A future embed remains possible through a deliberately narrow integration contract.
+
+## Implementation evidence
+
+The first customer entry experience is implemented in `apps/web` as a responsive Next.js application. Browser API requests use a same-origin server proxy, while Docker injects the private service address through `API_INTERNAL_URL`. This establishes the subdomain-ready boundary without exposing internal service names or credentials to the browser.
 
 ## Revisit triggers
 

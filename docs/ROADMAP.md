@@ -26,7 +26,7 @@ Outcome: deliver a secure, branded, Docker-based customer pilot with governed kn
 
 Scope: issues #6–#9 and #11.
 
-The first executable M2 increment is the Docker API runtime documented in [`docs/operations/docker.md`](operations/docker.md). It does not mark issue #7 complete until the remaining web, worker, dependency, migration, and production deployment requirements exist.
+The executable M2 baseline now includes Dockerized API and responsive web entry services documented in [`docs/operations/docker.md`](operations/docker.md). It does not mark issue #7 complete until the remaining worker, dependency, migration, and production deployment requirements exist.
 
 ## M3 — Commercial Launch
 

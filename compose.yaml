@@ -1,6 +1,44 @@
 name: el-rager
 
 services:
+  web:
+    build:
+      context: .
+      dockerfile: infra/docker/web.Dockerfile
+    image: el-rager-web:local
+    init: true
+    environment:
+      API_INTERNAL_URL: http://api:3001
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+      NODE_ENV: production
+    ports:
+      - "${EL_RAGER_WEB_PORT:-3000}:3000"
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+    stop_grace_period: 15s
+
   api:
     build:
       context: .
@@ -28,4 +66,9 @@ services:
       timeout: 5s
       start_period: 5s
       retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
     stop_grace_period: 15s

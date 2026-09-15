@@ -11,6 +11,7 @@
     "build": "npm run build --workspaces --if-present",
     "check": "npm run check --workspaces --if-present",
     "dev:api": "npm run dev --workspace @el-rager/api",
+    "dev:web": "npm run dev --workspace @el-rager/web",
     "test": "npm run test --workspaces --if-present"
   },
   "engines": {

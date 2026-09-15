@@ -16,10 +16,10 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -38,3 +38,6 @@ jobs:
 
       - name: Build API container
         run: docker build --file infra/docker/api.Dockerfile --tag el-rager-api:ci .
+
+      - name: Build web container
+        run: docker build --file infra/docker/web.Dockerfile --tag el-rager-web:ci .
