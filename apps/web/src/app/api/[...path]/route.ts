@@ -36,3 +36,42 @@ export async function GET(
     );
   }
 }
+
+export async function POST(
+  request: NextRequest,
+  context: { params: Promise<{ path: string[] }> },
+) {
+  const { path } = await context.params;
+  const safePath = path.map(encodeURIComponent).join("/");
+  const upstreamUrl = new URL(`/api/${safePath}`, apiBaseUrl);
+
+  try {
+    const upstream = await fetch(upstreamUrl, {
+      method: "POST",
+      body: await request.text(),
+      cache: "no-store",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+      },
+      signal: AbortSignal.timeout(30_000),
+    });
+
+    return new NextResponse(upstream.body, {
+      status: upstream.status,
+      headers: {
+        "content-type": upstream.headers.get("content-type") ?? "application/json",
+        "cache-control": "no-store",
+      },
+    });
+  } catch {
+    return NextResponse.json(
+      {
+        type: "https://el-rager.no/problems/api-unavailable",
+        title: "Rådgivningstjenesten er midlertidig utilgjengelig",
+        status: 502,
+      },
+      { status: 502 },
+    );
+  }
+}

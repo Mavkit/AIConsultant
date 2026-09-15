@@ -40,7 +40,7 @@ services:
     command:
       - sh
       - -ec
-      - psql -v ON_ERROR_STOP=1 -f /migrations/001_foundation.sql && psql -v ON_ERROR_STOP=1 -f /seed/001_local_pilot.sql
+      - psql -v ON_ERROR_STOP=1 -f /migrations/001_foundation.sql && psql -v ON_ERROR_STOP=1 -f /migrations/002_consultation_runs.sql && psql -v ON_ERROR_STOP=1 -f /seed/001_local_pilot.sql
     restart: "no"
 
   web:
@@ -96,6 +96,10 @@ services:
       PGDATABASE: el_rager
       PGUSER: el_rager
       PGPASSWORD: "${EL_RAGER_DB_PASSWORD:-local-only-change-me}"
+      AUTH_MODE: development
+      AI_PROVIDER: "${AI_PROVIDER:-deterministic}"
+      OPENAI_MODEL: "${OPENAI_MODEL:-gpt-5.6-terra}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
     ports:
       - "${EL_RAGER_API_PORT:-3001}:3001"
     depends_on:

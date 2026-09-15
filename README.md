@@ -27,7 +27,7 @@ The product is intended to give customers affordable, structured access to archi
 
 ## Repository status
 
-The repository contains the Milestone 1 product and architecture baseline plus an executable API foundation. The API publishes EL Råger's transparent consultant profile, health/readiness status, and the approved consulting workflow catalog.
+The repository contains the Milestone 1 baseline and the first executable consultation slice. The web experience can start a structured EL Råger assessment through a provider-neutral API; local and CI runs use deterministic inference, while an optional OpenAI Responses adapter is available through runtime configuration. PostgreSQL stores tenant-scoped consultations, messages, and safe model-run metadata.
 
 ## Local development
 
@@ -49,6 +49,7 @@ The development API listens on `http://localhost:3001` by default.
 | `GET /api/v1/consultant` | EL Råger identity, disclosure, languages, and expertise |
 | `GET /api/v1/workflows` | Approved consulting workflow catalog |
 | `GET /api/v1/workflows/:workflowId` | A single workflow contract |
+| `POST /api/v1/consultations` | Start and persist a structured consultation |
 | `GET /documentation` | Interactive OpenAPI documentation |
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow and [the delivery roadmap](docs/ROADMAP.md) for milestone scope.
@@ -59,7 +60,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow and [the del
 docker compose up --build
 ```
 
-The customer entry experience is then available at `http://localhost:3000`, with the API at `http://localhost:3001`. Compose provisions PostgreSQL, applies versioned migrations and repeatable non-customer pilot seed data, and starts the applications only after dependency readiness. The web application proxies browser API calls through its own origin and keeps the internal API address server-side. See the [Docker operations guide](docs/operations/docker.md) for lifecycle, configuration, verification, and troubleshooting.
+The customer entry experience is then available at `http://localhost:3000`, with the API at `http://localhost:3001`. Compose provisions PostgreSQL, applies versioned migrations and repeatable non-customer pilot seed data, and starts the applications only after dependency readiness. The web application proxies browser API calls through its own origin and keeps the internal API address server-side. See the [Docker operations guide](docs/operations/docker.md) for lifecycle, configuration, verification, and troubleshooting, and the [model gateway](docs/architecture/model-gateway.md) for provider and safety controls.
 
 ## Source context
 

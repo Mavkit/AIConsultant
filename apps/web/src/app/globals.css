@@ -112,6 +112,13 @@ textarea { width: 100%; resize: vertical; margin-top: .65rem; padding: .9rem; bo
 .consent input { margin-top: .2rem; accent-color: var(--signal); }
 .submit { width: 100%; }
 .form-status { min-height: 1.4rem; margin: .8rem 0 0; color: #386021; text-align: center; font-size: .8rem; font-weight: 700; }
+.button:disabled { cursor: wait; opacity: .65; }
+.consultation-result { margin-top: 1.25rem; padding: 1.25rem; border: 1px solid rgba(19,33,28,.18); border-radius: 1rem; background: #fff; }
+.consultation-result h3 { margin: 0 0 1rem; font-size: 1.2rem; }
+.consultation-result h4 { margin: 1rem 0 .35rem; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; }
+.consultation-result ul, .consultation-result ol { margin: 0; padding-left: 1.25rem; }
+.consultation-result li { margin: .35rem 0; line-height: 1.5; }
+.consultation-result p { margin: 1rem 0 0; }
 
 footer { display: flex; gap: 2rem; align-items: center; padding: 2rem clamp(1.25rem, 6vw, 7.5rem); color: var(--cream); background: var(--ink); font-size: .85rem; }
 footer p { margin: 0 auto 0 0; color: rgba(255,255,255,.62); }

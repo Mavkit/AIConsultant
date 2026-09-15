@@ -16,12 +16,21 @@ type Workflow = {
   humanReview: "optional" | "recommended" | "required";
 };
 
+type ConsultationAnswer = {
+  summary: string;
+  analysis: string[];
+  assumptions: string[];
+  risks: string[];
+  nextSteps: string[];
+  humanReview: string;
+};
+
 const fallbackWorkflows: Workflow[] = [
   {
-    id: "architecture-assessment",
-    name: "Arkitekturvurdering",
-    purpose: "Kartlegg nåsituasjon, risiko og prioriterte forbedringer.",
-    humanReview: "recommended",
+    id: "architecture-discovery",
+    name: "Arkitekturkartlegging",
+    purpose: "Avklar beslutningen, situasjonen og hva som må undersøkes videre.",
+    humanReview: "optional",
   },
   {
     id: "solution-options",
@@ -30,7 +39,7 @@ const fallbackWorkflows: Workflow[] = [
     humanReview: "required",
   },
   {
-    id: "vendor-evaluation",
+    id: "vendor-evaluation-preparation",
     name: "Leverandørvurdering",
     purpose: "Strukturer krav og vurder leverandører på et etterprøvbart grunnlag.",
     humanReview: "required",
@@ -56,7 +65,9 @@ export default function Home() {
   const [consultant, setConsultant] = useState<Consultant | null>(null);
   const [workflows, setWorkflows] = useState<Workflow[]>(fallbackWorkflows);
   const [selectedWorkflow, setSelectedWorkflow] = useState(fallbackWorkflows[0].id);
-  const [confirmation, setConfirmation] = useState("");
+  const [status, setStatus] = useState("");
+  const [answer, setAnswer] = useState<ConsultationAnswer | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -83,12 +94,31 @@ export default function Home() {
     return () => controller.abort();
   }, []);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const workflow = workflows.find((item) => item.id === selectedWorkflow);
-    setConfirmation(
-      `${workflow?.name ?? "Valgt rådgivningsløp"} er klargjort. Samtaler og innlogging kobles til i neste pilotinkrement.`,
-    );
+    const form = new FormData(event.currentTarget);
+    setSubmitting(true);
+    setAnswer(null);
+    setStatus("EL Råger analyserer situasjonen …");
+    try {
+      const response = await fetch("/api/v1/consultations", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          workflowId: selectedWorkflow,
+          context: form.get("context"),
+          aiAcknowledged: form.get("aiAcknowledged") === "on",
+        }),
+      });
+      const payload = await response.json() as { answer?: ConsultationAnswer; detail?: string; title?: string };
+      if (!response.ok || !payload.answer) throw new Error(payload.detail ?? payload.title ?? "Ukjent feil");
+      setAnswer(payload.answer);
+      setStatus("Første arkitekturvurdering er klar.");
+    } catch (error) {
+      setStatus(`Kunne ikke starte vurderingen: ${error instanceof Error ? error.message : "Prøv igjen senere."}`);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -202,14 +232,30 @@ export default function Home() {
           </fieldset>
           <label className="context-label" htmlFor="context">
             Kort om situasjonen
-            <textarea id="context" name="context" rows={4} placeholder="Eksempel: Vi skal modernisere butikk- og netthandelsplattformen …" />
+            <textarea id="context" name="context" rows={4} minLength={20} maxLength={8000} required placeholder="Eksempel: Vi skal modernisere butikk- og netthandelsplattformen …" />
           </label>
           <label className="consent">
-            <input type="checkbox" required />
+            <input type="checkbox" name="aiAcknowledged" required />
             <span>Jeg forstår at dette er en AI-tjeneste og vil ikke dele sensitive personopplysninger.</span>
           </label>
-          <button className="button primary submit" type="submit">Forbered rådgivningen</button>
-          <p className="form-status" aria-live="polite">{confirmation}</p>
+          <button className="button primary submit" type="submit" disabled={submitting}>
+            {submitting ? "Analyserer …" : "Start rådgivningen"}
+          </button>
+          <p className="form-status" aria-live="polite">{status}</p>
+          {answer && (
+            <section className="consultation-result" aria-label="EL Rågers første vurdering">
+              <h3>{answer.summary}</h3>
+              <h4>Analyse</h4>
+              <ul>{answer.analysis.map((item) => <li key={item}>{item}</li>)}</ul>
+              <h4>Antakelser</h4>
+              <ul>{answer.assumptions.map((item) => <li key={item}>{item}</li>)}</ul>
+              <h4>Risiko</h4>
+              <ul>{answer.risks.map((item) => <li key={item}>{item}</li>)}</ul>
+              <h4>Neste steg</h4>
+              <ol>{answer.nextSteps.map((item) => <li key={item}>{item}</li>)}</ol>
+              <p><strong>{answer.humanReview}</strong></p>
+            </section>
+          )}
         </form>
       </section>
 

@@ -11,8 +11,14 @@ test("entry experience identifies EL Råger as AI", () => {
 });
 
 test("consultation intake requires explicit AI acknowledgement", () => {
-  assert.match(pageSource, /type="checkbox" required/);
+  assert.match(pageSource, /name="aiAcknowledged" required/);
   assert.match(pageSource, /ikke dele sensitive personopplysninger/);
+});
+
+test("consultation intake calls the versioned API and renders a structured result", () => {
+  assert.match(pageSource, /fetch\("\/api\/v1\/consultations"/);
+  assert.match(pageSource, /answer\.assumptions/);
+  assert.match(pageSource, /answer\.nextSteps/);
 });
 
 test("page is localized and exposes a main heading", () => {

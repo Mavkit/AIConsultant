@@ -21,6 +21,7 @@ erDiagram
     ORGANIZATIONS ||--o{ CONSULTATIONS : bounds
     WORKSPACES ||--o{ CONSULTATIONS : contains
     CONSULTATIONS ||--o{ CONSULTATION_MESSAGES : records
+    CONSULTATIONS ||--o{ CONSULTATION_RUNS : invokes
     WORKSPACES ||--o{ EVIDENCE_ITEMS : governs
     CONSULTATIONS ||--o{ ARTIFACTS : produces
 ```
@@ -34,5 +35,7 @@ erDiagram
 - Destructive or data-rewriting changes require a backup, tested rollback/forward-fix plan, and an explicit ADR.
 
 ## Local pilot seed
+
+`consultation_runs` stores provider, model, and optional provider response identifiers for cost and quality traceability without duplicating prompts or model output. Content remains in tenant-bound `consultation_messages`.
 
 `infra/postgres/seed/001_local_pilot.sql` creates deterministic, non-customer demo records and is safe to run repeatedly. It exists only to make local journeys and automated tests reproducible. Production deployment must not execute this seed.

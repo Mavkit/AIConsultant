@@ -59,6 +59,16 @@ Expected health response:
 
 The customer entry experience is available at <http://localhost:3000>. Interactive API documentation is available at <http://localhost:3001/documentation>.
 
+The default `deterministic` AI provider returns a stable demonstration assessment without external calls. To exercise the optional OpenAI adapter, inject the key from your local secret environment before starting Compose:
+
+```powershell
+$env:AI_PROVIDER = "openai"
+$env:OPENAI_API_KEY = "<from-your-secret-store>"
+docker compose up --build
+```
+
+Do not put a real key in `.env.example`, Compose, source control, screenshots, or logs.
+
 The browser calls `/api/*` on the web origin. The web server forwards those requests to `API_INTERNAL_URL`, so internal addresses and future service credentials do not enter the client bundle.
 
 ## Lifecycle
@@ -117,6 +127,10 @@ See the [operational data model](../architecture/data-model.md) for tenant integ
 | `EL_RAGER_API_PORT` | `3001` | Compose host-side published port |
 | `EL_RAGER_DB_PORT` | `5432` | Compose PostgreSQL host-side published port |
 | `EL_RAGER_DB_PASSWORD` | Local-only fallback | Local PostgreSQL password; inject as a secret outside development |
+| `AUTH_MODE` | `development` in Compose | Server-side pilot identity adapter; not valid for production |
+| `AI_PROVIDER` | `deterministic` | `deterministic` for reproducible local use or `openai` |
+| `OPENAI_MODEL` | `gpt-5.6-terra` | OpenAI model when that provider is selected |
+| `OPENAI_API_KEY` | none | OpenAI credential, supplied only through a secret store |
 
 Configuration is environment-based. Secret values must come from the deployment platform's secret store or a Compose secret mechanism; they must never be committed or baked into an image.
 
@@ -156,6 +170,8 @@ Use no-cache builds only for diagnosis; normal builds should reuse deterministic
 This baseline intentionally does not select a production orchestrator. Before pilot deployment, document and verify:
 
 - TLS ingress and trusted proxy behavior.
+- Verified customer identity, membership authorization, and removal of development auth mode.
+- Distributed, tenant-aware rate limiting and abuse monitoring.
 - Central secret injection and rotation.
 - Resource requests and limits calibrated from pilot measurements.
 - Registry provenance, vulnerability scanning, and image signing.

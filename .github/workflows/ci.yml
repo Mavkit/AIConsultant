@@ -45,6 +45,7 @@ jobs:
           docker compose run --rm migrate
           docker compose run --rm migrate
           test "$(docker compose exec -T db psql -U el_rager -d el_rager -Atqc "select count(*) from schema_migrations where version = '001_foundation';")" = "1"
+          test "$(docker compose exec -T db psql -U el_rager -d el_rager -Atqc "select count(*) from schema_migrations where version = '002_consultation_runs';")" = "1"
           test "$(docker compose exec -T db psql -U el_rager -d el_rager -Atqc "select count(*) from workspaces where id = '00000000-0000-4000-8000-000000000101';")" = "1"
 
       - name: Build API container
